@@ -1,5 +1,6 @@
 import pygame, sys
 from button import Button
+from edit_lvl_menu import EditLvlMenu
 
 
 # set pygame
@@ -14,8 +15,6 @@ btn_y_vector = screen_size[0] / 2
 btn_x_vector = screen_size[1] / 4
 gui_font = pygame.font.Font(None, 30)
 running = True
-game_state = 'main_menu'
-
 
 # screen elements
 play_btn = Button('Graj', 200, 40, (btn_y_vector - 100, btn_x_vector), 5, screen, gui_font)
@@ -31,7 +30,8 @@ while running:
 		pass
 	edit_lvl_btn.draw()
 	if edit_lvl_btn.check_click():
-		pass
+		edit_lvl_menu = EditLvlMenu(screen, gui_font, clock)
+		edit_lvl_menu.run()
 	quit_btn.draw()
 	if quit_btn.check_click():
 		running = False
