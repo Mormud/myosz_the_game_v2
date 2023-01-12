@@ -1,5 +1,5 @@
 import pygame, sys
-from button import Button
+from button import Button, ImgButton ,SwButton
 from label import Label
 from plr_color import plr_color_list
 from map_engine import Map
@@ -16,7 +16,6 @@ class CreateMap():
         self.btn_x_vector = screen_size[0] / 8
         self.btn_y_vector = screen_size[1] / 13
         self.running = True
-        self.selected_item = 0
         self.plr_color = plr_color_list
 
         # map
@@ -36,11 +35,26 @@ class CreateMap():
                                    5, self.screen, self.gui_font)
         self.choose_element = Button('Gracz', 200, 40, ((self.btn_x_vector * 6) + 70, self.btn_y_vector * 4),
                                      5, self.screen, self.gui_font)
+        self.tower_btn = ImgButton(100, 100, (self.btn_x_vector * 6 + 120, self.btn_y_vector * 6),
+                                   'assets/field_elements/tower.png', '#DCDDD8', self.screen)
+        self.base_btn = ImgButton(100, 100, (self.btn_x_vector * 6 + 120, self.btn_y_vector * 8),
+                                   'assets/field_elements/house.png', '#DCDDD8', self.screen)
+        self.remove_btn = SwButton('Usuń', 200, 40, ((self.btn_x_vector * 6) + 70, (self.btn_y_vector * 10)),
+                                5, self.screen, self.gui_font)
+        self.save_btn = Button('Zapisz', 200, 40, ((self.btn_x_vector * 6) + 70, (self.btn_y_vector * 11)),
+                                5, self.screen, self.gui_font)
         self.clear_btn = Button('Reset', 200, 40, ((self.btn_x_vector * 6) + 70, (self.btn_y_vector * 12)),
                                5, self.screen, self.gui_font)
         self.right_menu_bg_surf = pygame.Surface((screen_size[0] - self.map_width, screen_size[1]))
         self.right_menu_bg_surf.fill('#202124')
         self.right_menu_bg_rect = self.right_menu_bg_surf.get_rect(bottomright=(screen_size[0], screen_size[1]))
+
+        # buttons variables
+        self.tower_chosen = False
+        self.base_chosen = False
+        self.remove_chosen = False
+        self.selected_item = 0
+        self.last_selected_field = 0
 
     def run(self):
         while self.running:
@@ -69,17 +83,65 @@ class CreateMap():
 
             self.choose_element.draw()
             if self.choose_element.check_click():
+                if self.tower_chosen or self.base_chosen or self.remove_chosen:
+                    self.selected_item = self.last_selected_field
                 self.selected_item += 1
                 if self.selected_item > len(self.plr_color) - 1:
                     self.selected_item = 0
+                self.tower_chosen = False
+                self.base_chosen = False
+                self.remove_chosen = False
+                self.last_selected_field = self.selected_item
+
+            self.tower_btn.draw(self.tower_chosen)
+            if self.tower_btn.check_click():
+                if self.tower_chosen:
+                    self.tower_chosen = False
+                    self.selected_item = self.last_selected_field
+                else:
+                    self.tower_chosen = True
+                    self.base_chosen = False
+                    self.remove_chosen = False
+                    self.selected_item = len(self.plr_color) + 1
+
+            self.base_btn.draw(self.base_chosen)
+            if self.base_btn.check_click():
+                if self.base_chosen:
+                    self.base_chosen = False
+                    self.selected_item = self.last_selected_field
+                else:
+                    self.base_chosen = True
+                    self.tower_chosen = False
+                    self.remove_chosen = False
+                    self.selected_item = len(self.plr_color) + 2
+
+            self.remove_btn.draw()
+            if self.remove_btn.check_click(self.remove_chosen):
+                if self.remove_chosen:
+                    self.remove_chosen = False
+                    self.selected_item = self.last_selected_field
+                else:
+                    self.remove_chosen = True
+                    self.base_chosen = False
+                    self.tower_chosen = False
+                    self.selected_item = len(self.plr_color) + 3
+
+            self.save_btn.draw()
+            if self.save_btn.check_click():
+                self.map.save_map()
 
             self.clear_btn.draw()
             if self.clear_btn.check_click():
                 self.map.clear_map()
 
             # selected item label
-            selected_lbl = Label('', 200, 45, ((self.btn_x_vector * 6) + 70, self.btn_y_vector * 5), self.screen, self.gui_font,self.plr_color[self.selected_item])
-            selected_lbl.draw()
+            if self.selected_item < len(self.plr_color):
+                selected_lbl = Label('', 200, 45, ((self.btn_x_vector * 6) + 70, self.btn_y_vector * 5), self.screen, self.gui_font,self.plr_color[self.selected_item])
+                selected_lbl.draw()
+            else:
+                selected_lbl = Label('', 200, 45, ((self.btn_x_vector * 6) + 70, self.btn_y_vector * 5), self.screen,
+                                     self.gui_font, self.plr_color[self.last_selected_field])
+                selected_lbl.draw()
 
             # main loop
             for event in pygame.event.get():

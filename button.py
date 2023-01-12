@@ -50,3 +50,56 @@ class Button:
 			self.dynamic_elecation = self.elevation
 			self.top_color = '#475F77'
 			return False
+
+
+class SwButton(Button):
+	def check_click(self, on):
+		if on:
+			self.dynamic_elecation = 0
+			self.top_color = '#943434'
+		else:
+			self.dynamic_elecation = self.elevation
+			self.top_color = '#475F77'
+
+		mouse_pos = pygame.mouse.get_pos()
+		if self.top_rect.collidepoint(mouse_pos):
+			self.top_color = '#D74B4B'
+			if pygame.mouse.get_pressed()[0]:
+				self.pressed = True
+			else:
+				if self.pressed == True:
+					self.pressed = False
+					return True
+		else:
+			return False
+
+
+class ImgButton:
+	def __init__(self, width, height, pos, img_scr, bg_color, screen):
+		# core attributes
+		self.pressed = False
+		self.screen = screen
+
+		# button attributes
+		self.bg_color = bg_color
+		self.btn_surf = pygame.image.load(img_scr).convert_alpha()
+		self.btn_surf = pygame.transform.scale(self.btn_surf, (width, height))
+		self.btn_rect = self.btn_surf.get_rect(topleft=pos)
+
+	def draw(self, on):
+		self.screen.blit(self.btn_surf, self.btn_rect)
+		if on:
+			pygame.draw.rect(self.screen, self.bg_color, self.btn_rect, border_radius=12)
+			self.screen.blit(self.btn_surf, self.btn_rect)
+
+	def check_click(self):
+		mouse_pos = pygame.mouse.get_pos()
+		if self.btn_rect.collidepoint(mouse_pos):
+			if pygame.mouse.get_pressed()[0]:
+				self.pressed = True
+			else:
+				if self.pressed == True:
+					self.pressed = False
+					return True
+		else:
+			return False
